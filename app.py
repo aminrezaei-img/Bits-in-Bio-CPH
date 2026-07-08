@@ -170,7 +170,7 @@ with st.sidebar:
         "<div style='text-align:center;padding:8px 0 12px 0'>"
         "<div style='font-size:100px;line-height:1.1'>🧬</div>"
         "<span style='font-size:24px;font-weight:800;color:#1e293b'>Viably</span>"
-        "<div style='font-size:28px;color:#64748b;margin-top:2px'>Evidence-based project triage</div>"
+        "<div style='font-size:22px;color:#64748b;margin-top:2px'>Evidence-based project triage</div>"
         "</div>",
         unsafe_allow_html=True,
     )
@@ -232,7 +232,7 @@ with left_col:
         <span style="font-size:28px">🧬</span>
         <div>
             <h1>Viably</h1>
-            <div class="tagline">Decide whether a bio project idea is worth pursuing — before spending weeks on it.</div>
+            <div class="tagline" style="font-size:20px">Decide whether a bio project idea is worth pursuing, before spending weeks on it.</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -311,7 +311,7 @@ with left_col:
 
     else:
         st.markdown("---")
-        st.info("👆 Enter a project idea above and click **Assess Project** to get started — or pick a demo from the sidebar.")
+        st.info("👆 Enter a project idea above and click **Assess Project** to get started, or pick a demo from the sidebar.")
 
         # How it works
         st.markdown("<div style='margin-top:24px'></div>", unsafe_allow_html=True)
@@ -321,7 +321,7 @@ with left_col:
                 "<div style='background:#f8fafc;border-radius:10px;padding:20px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center'>"
                 "<div style='font-size:32px;margin-bottom:8px'>🔍</div>"
                 "<div style='font-weight:600;color:#1e293b;margin-bottom:4px'>1. Describe</div>"
-                "<div style='font-size:13px;color:#64748b'>Enter your project idea — target, intervention, disease, or hypothesis</div>"
+                "<div style='font-size:13px;color:#64748b'>Enter your project idea: target, intervention, disease, or hypothesis</div>"
                 "</div>",
                 unsafe_allow_html=True,
             )
@@ -330,7 +330,7 @@ with left_col:
                 "<div style='background:#f8fafc;border-radius:10px;padding:20px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center'>"
                 "<div style='font-size:32px;margin-bottom:8px'>⚡</div>"
                 "<div style='font-weight:600;color:#1e293b;margin-bottom:4px'>2. Assess</div>"
-                "<div style='font-size:13px;color:#64748b'>We check 5 evidence sources — papers, trials, drugs, regulatory, patents</div>"
+                "<div style='font-size:13px;color:#64748b'>We check 5 evidence sources: papers, trials, drugs, regulatory, patents</div>"
                 "</div>",
                 unsafe_allow_html=True,
             )
@@ -339,7 +339,7 @@ with left_col:
                 "<div style='background:#f8fafc;border-radius:10px;padding:20px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center'>"
                 "<div style='font-size:32px;margin-bottom:8px'>💡</div>"
                 "<div style='font-weight:600;color:#1e293b;margin-bottom:4px'>3. Decide</div>"
-                "<div style='font-size:13px;color:#64748b'>Get a clear verdict: Proceed, Review carefully, or Reframe</div>"
+                "<div style='font-size:13px;color:#64748b'>Get a clear, evidence-backed verdict: Proceed, Review carefully, or Reframe your idea</div>"
                 "</div>",
                 unsafe_allow_html=True,
             )
