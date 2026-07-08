@@ -9,6 +9,7 @@ from summary_builder import build_summary
 from scoring import compute_scores
 from demo_data import get_demo_scenario, get_demo_scenarios
 from evidence_map import build_evidence_map_html, has_evidence
+from chat_panel import render_chat_panel, set_context
 
 st.set_page_config(page_title="Viably", page_icon="🧬", layout="wide")
 
@@ -32,8 +33,8 @@ def _all_failed(results: dict) -> bool:
     return True
 
 
-def render_results(papers, trials, drugs, regulatory=None, patents=None, errors=None, idea=""):
-    """Render the full results section from record lists."""
+def render_assessment(papers, trials, drugs, regulatory=None, patents=None, errors=None, idea=""):
+    """Render the assessment results in the left panel."""
     scores = compute_scores(papers, trials, drugs, regulatory, patents)
 
     # ── Recommendation card ──
@@ -83,7 +84,7 @@ def render_results(papers, trials, drugs, regulatory=None, patents=None, errors=
         f"Drugs: {scores['counts']['drugs']} · "
         f"Regulatory: {scores['counts'].get('regulatory', 0)} · "
         f"Patents: {scores['counts'].get('patents', 0)} · "
-        f"Stopped trials: {scores['counts']['stopped']} · "
+        f"Stopped: {scores['counts']['stopped']} · "
         f"Late-stage: {scores['counts']['late_stage']}"
     )
 
@@ -100,7 +101,7 @@ def render_results(papers, trials, drugs, regulatory=None, patents=None, errors=
     if table_rows:
         st.dataframe(table_rows, use_container_width=True, hide_index=True)
     else:
-        st.info("No records found across the three sources.")
+        st.info("No records found across the sources.")
 
     # ── Errors ──
     if errors:
@@ -114,6 +115,8 @@ def render_results(papers, trials, drugs, regulatory=None, patents=None, errors=
                 idea, papers, trials, drugs, regulatory, patents, max_per_source=5,
             )
             st.components.v1.html(map_html, height=400, scrolling=True)
+
+    return scores
 
 
 # ── Sidebar: Quick Demo ─────────────────────────────────────
@@ -137,85 +140,92 @@ with st.sidebar:
     st.caption("Built with [Amass API](https://platform.amass.tech) · [Viably on GitHub](https://github.com/aminrezaei-img/Bits-in-Bio-CPH)")
 
 
-# ── Header ──────────────────────────────────────────────────
-st.title("🧬 Viably")
-st.caption("Decide whether a bio project idea is worth pursuing — before spending weeks on it.")
-st.markdown("---")
+# ── Two-panel layout ────────────────────────────────────────
+left_col, right_col = st.columns([3, 1], gap="medium")
 
-
-# ── Input ───────────────────────────────────────────────────
-idea = st.text_area(
-    "What's your project idea?",
-    placeholder="Describe the target, intervention, disease area, or hypothesis...",
-    height=100,
-    key="idea_input",
-)
-
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    assess = st.button("🔍 Assess Project", type="primary", use_container_width=True)
-
-
-# ── Results ─────────────────────────────────────────────────
-# Path 1: Demo button in sidebar
-if st.session_state.get("run_demo"):
-    demo_key = st.session_state.pop("run_demo")
-    sc = get_demo_scenario(demo_key)
-    if sc:
-        st.success(f"📦 Loaded demo: **{sc['label']}**")
-        errors = {}
-        for core_name in ["biomedcore", "trialcore", "drugcore", "regulatorycore", "patentcore"]:
-            if sc[core_name].get("error"):
-                errors[core_name] = sc[core_name]["error"]
-        render_results(
-            sc["biomedcore"]["records"],
-            sc["trialcore"]["records"],
-            sc["drugcore"]["records"],
-            regulatory=sc["regulatorycore"]["records"],
-            patents=sc["patentcore"]["records"],
-            errors=errors,
-            idea=sc["idea"],
-        )
-        st.caption(f"💡 *Demo query idea:* {sc['idea']}")
-
-# Path 2: User-entered query
-elif assess and idea.strip():
-    with st.spinner("Searching across studies, trials, interventions, regulatory, and patent records..."):
-        results = cached_search(idea.strip(), limit=20)
-
-    papers = results.get("biomedcore", {}).get("records", [])
-    trials = results.get("trialcore", {}).get("records", [])
-    drugs = results.get("drugcore", {}).get("records", [])
-    regulatory = results.get("regulatorycore", {}).get("records", [])
-    patents = results.get("patentcore", {}).get("records", [])
-
-    # Fallback: if all cores failed, try demo data
-    if _all_failed(results):
-        st.warning("⚠️ All API sources unavailable — showing cached demo data instead.")
-        # Use the reframe scenario as the safest fallback (most visually interesting)
-        sc = get_demo_scenario("reframe")
-        papers = sc["biomedcore"]["records"]
-        trials = sc["trialcore"]["records"]
-        drugs = sc["drugcore"]["records"]
-        regulatory = sc["regulatorycore"]["records"]
-        patents = sc["patentcore"]["records"]
-        errors = {k: v.get("error", "API unavailable") for k, v in results.items() if v.get("error")}
-    else:
-        errors = {k: v["error"] for k, v in results.items() if v.get("error")}
-
-    render_results(papers, trials, drugs, regulatory=regulatory, patents=patents, errors=errors, idea=idea.strip())
-
-elif assess and not idea.strip():
-    st.warning("Please enter a project idea.")
-
-else:
-    # ── Empty state ──
+with left_col:
+    # ── Header ──
+    st.title("🧬 Viably")
+    st.caption("Decide whether a bio project idea is worth pursuing — before spending weeks on it.")
     st.markdown("---")
-    st.info("👆 Enter a project idea above and click **Assess Project** to get started — or pick a demo from the sidebar.")
 
-    with st.expander("💡 Example queries to try"):
-        st.markdown("""
-        - **CAR-T therapy for solid tumors** → expect *Reframe* (crowded, translated)
-        - **CRISPR-based microbiome editing for depression** → expect *Review carefully* or *Proceed*
-        - **GLP-1 receptor agonist for Alzheimer's** → expect *Review carefully* (some testing, growing)
-        """)
+    # ── Input ──
+    idea = st.text_area(
+        "What's your project idea?",
+        placeholder="Describe the target, intervention, disease area, or hypothesis...",
+        height=100,
+        key="idea_input",
+    )
+
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        assess = st.button("🔍 Assess Project", type="primary", use_container_width=True)
+
+    # ── Results ──
+    # Path 1: Demo button in sidebar
+    if st.session_state.get("run_demo"):
+        demo_key = st.session_state.pop("run_demo")
+        sc = get_demo_scenario(demo_key)
+        if sc:
+            st.success(f"📦 Loaded demo: **{sc['label']}**")
+            errors = {}
+            for core_name in ["biomedcore", "trialcore", "drugcore", "regulatorycore", "patentcore"]:
+                if sc[core_name].get("error"):
+                    errors[core_name] = sc[core_name]["error"]
+
+            papers = sc["biomedcore"]["records"]
+            trials = sc["trialcore"]["records"]
+            drugs = sc["drugcore"]["records"]
+            regulatory = sc["regulatorycore"]["records"]
+            patents = sc["patentcore"]["records"]
+
+            scores = render_assessment(
+                papers, trials, drugs,
+                regulatory=regulatory, patents=patents,
+                errors=errors, idea=sc["idea"],
+            )
+            set_context(scores, sc["idea"], scores["counts"])
+            st.caption(f"💡 *Demo query idea:* {sc['idea']}")
+
+    # Path 2: User-entered query
+    elif assess and idea.strip():
+        with st.spinner("Searching across studies, trials, interventions, regulatory, and patent records..."):
+            results = cached_search(idea.strip(), limit=20)
+
+        papers = results.get("biomedcore", {}).get("records", [])
+        trials = results.get("trialcore", {}).get("records", [])
+        drugs = results.get("drugcore", {}).get("records", [])
+        regulatory = results.get("regulatorycore", {}).get("records", [])
+        patents = results.get("patentcore", {}).get("records", [])
+
+        # Fallback: if all cores failed, try demo data
+        if _all_failed(results):
+            st.warning("⚠️ All API sources unavailable — showing cached demo data instead.")
+            sc = get_demo_scenario("reframe")
+            papers = sc["biomedcore"]["records"]
+            trials = sc["trialcore"]["records"]
+            drugs = sc["drugcore"]["records"]
+            regulatory = sc["regulatorycore"]["records"]
+            patents = sc["patentcore"]["records"]
+            errors = {k: v.get("error", "API unavailable") for k, v in results.items() if v.get("error")}
+        else:
+            errors = {k: v["error"] for k, v in results.items() if v.get("error")}
+
+        scores = render_assessment(
+            papers, trials, drugs,
+            regulatory=regulatory, patents=patents,
+            errors=errors, idea=idea.strip(),
+        )
+        set_context(scores, idea.strip(), scores["counts"])
+
+    elif assess and not idea.strip():
+        st.warning("Please enter a project idea.")
+
+    else:
+        # ── Empty state ──
+        st.markdown("---")
+        st.info("👆 Enter a project idea above and click **Assess Project** to get started — or pick a demo from the sidebar.")
+
+# ── Right panel: Chat ───────────────────────────────────────
+with right_col:
+    render_chat_panel()
