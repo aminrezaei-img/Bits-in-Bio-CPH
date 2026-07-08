@@ -17,7 +17,7 @@ def test_all_scenarios_present():
 
 
 def test_each_scenario_has_all_keys():
-    required = {"label", "idea", "expected_rec", "biomedcore", "trialcore", "drugcore"}
+    required = {"label", "idea", "expected_rec", "biomedcore", "trialcore", "drugcore", "regulatorycore"}
     for key, sc in DEMO_SCENARIOS.items():
         missing = required - set(sc.keys())
         assert not missing, f"{key}: missing keys {missing}"
@@ -29,6 +29,9 @@ def test_each_scenario_has_records():
             records = sc[core]["records"]
             assert isinstance(records, list), f"{key}.{core}: records not a list"
             assert len(records) > 0, f"{key}.{core}: no records"
+        # Regulatory may be empty for low-data scenarios
+        reg = sc["regulatorycore"]["records"]
+        assert isinstance(reg, list), f"{key}.regulatorycore: records not a list"
 
 
 def test_scores_produce_expected_recommendations():
@@ -95,6 +98,7 @@ def test_demo_data_builds_valid_table():
             sc["biomedcore"]["records"],
             sc["trialcore"]["records"],
             sc["drugcore"]["records"],
+            sc["regulatorycore"]["records"],
         )
         assert len(table) > 0, f"{key}: empty table"
         for row in table:
@@ -107,9 +111,10 @@ def test_demo_data_builds_valid_summary():
         papers = sc["biomedcore"]["records"]
         trials = sc["trialcore"]["records"]
         drugs = sc["drugcore"]["records"]
+        regulatory = sc["regulatorycore"]["records"]
 
         from scoring import compute_scores
-        scores = compute_scores(papers, trials, drugs)
+        scores = compute_scores(papers, trials, drugs, regulatory)
 
         assert scores["recommendation"] == sc["expected_rec"], (
             f"{key}: expected {sc['expected_rec']}, got {scores['recommendation']}"

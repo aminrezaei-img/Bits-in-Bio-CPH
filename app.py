@@ -31,9 +31,9 @@ def _all_failed(results: dict) -> bool:
     return True
 
 
-def render_results(papers, trials, drugs, errors=None):
+def render_results(papers, trials, drugs, regulatory=None, errors=None):
     """Render the full results section from record lists."""
-    scores = compute_scores(papers, trials, drugs)
+    scores = compute_scores(papers, trials, drugs, regulatory)
 
     # ── Recommendation card ──
     rec_color = {
@@ -80,6 +80,7 @@ def render_results(papers, trials, drugs, errors=None):
         f"Papers: {scores['counts']['papers']} · "
         f"Trials: {scores['counts']['trials']} · "
         f"Drugs: {scores['counts']['drugs']} · "
+        f"Regulatory: {scores['counts'].get('regulatory', 0)} · "
         f"Stopped trials: {scores['counts']['stopped']} · "
         f"Late-stage: {scores['counts']['late_stage']}"
     )
@@ -92,7 +93,7 @@ def render_results(papers, trials, drugs, errors=None):
 
     # ── Evidence table ──
     st.subheader("📋 Supporting Evidence")
-    table_rows = build_evidence_table(papers, trials, drugs, max_per_source=10)
+    table_rows = build_evidence_table(papers, trials, drugs, regulatory, max_per_source=10)
 
     if table_rows:
         st.dataframe(table_rows, use_container_width=True, hide_index=True)
@@ -153,25 +154,27 @@ if st.session_state.get("run_demo"):
     if sc:
         st.success(f"📦 Loaded demo: **{sc['label']}**")
         errors = {}
-        for core_name in ["biomedcore", "trialcore", "drugcore"]:
+        for core_name in ["biomedcore", "trialcore", "drugcore", "regulatorycore"]:
             if sc[core_name].get("error"):
                 errors[core_name] = sc[core_name]["error"]
         render_results(
             sc["biomedcore"]["records"],
             sc["trialcore"]["records"],
             sc["drugcore"]["records"],
+            regulatory=sc["regulatorycore"]["records"],
             errors=errors,
         )
         st.caption(f"💡 *Demo query idea:* {sc['idea']}")
 
 # Path 2: User-entered query
 elif assess and idea.strip():
-    with st.spinner("Searching across literature, trials, and drugs..."):
+    with st.spinner("Searching across literature, trials, drugs, and regulatory records..."):
         results = cached_search(idea.strip(), limit=20)
 
     papers = results.get("biomedcore", {}).get("records", [])
     trials = results.get("trialcore", {}).get("records", [])
     drugs = results.get("drugcore", {}).get("records", [])
+    regulatory = results.get("regulatorycore", {}).get("records", [])
 
     # Fallback: if all cores failed, try demo data
     if _all_failed(results):
@@ -181,11 +184,12 @@ elif assess and idea.strip():
         papers = sc["biomedcore"]["records"]
         trials = sc["trialcore"]["records"]
         drugs = sc["drugcore"]["records"]
+        regulatory = sc["regulatorycore"]["records"]
         errors = {k: v.get("error", "API unavailable") for k, v in results.items() if v.get("error")}
     else:
         errors = {k: v["error"] for k, v in results.items() if v.get("error")}
 
-    render_results(papers, trials, drugs, errors=errors)
+    render_results(papers, trials, drugs, regulatory=regulatory, errors=errors)
 
 elif assess and not idea.strip():
     st.warning("Please enter a project idea.")

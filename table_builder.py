@@ -108,14 +108,46 @@ def build_drug_rows(drugs: list[dict], max_rows: int = 10) -> list[dict]:
     return rows
 
 
+def build_regulatory_rows(regulatory: list[dict], max_rows: int = 10) -> list[dict]:
+    """Convert RegulatoryCore records into evidence table rows."""
+    rows = []
+    for rec in regulatory[:max_rows]:
+        amass_id = _safe_get(rec, "amassId")
+        agency = _safe_get(rec, "agency")
+        auth_status = _safe_get(rec, "authorizationStatus")
+        indication = _safe_get(rec, "therapeuticIndication")
+        status = f"{agency} · {auth_status}" if agency and auth_status else auth_status or "—"
+
+        is_active = rec.get("authorizationStatus") == "ACTIVE"
+        signal = "✅ Active authorization" if is_active else "—"
+
+        title = _truncate(rec.get("name", "N/A"))
+        substance = _safe_get(rec, "activeSubstance")
+        if substance and substance not in title:
+            title = f"{title} ({substance})"
+        if indication:
+            title = f"{title} — {_truncate(indication, 80)}"
+
+        rows.append({
+            "Source": "🏛️ Regulatory",
+            "Title": _truncate(title, max_len=140),
+            "Status": status,
+            "Date": _safe_get(rec, "authorizationDate"),
+            "Signal": signal,
+            "ID": amass_id if amass_id else "—",
+        })
+    return rows
+
+
 def build_evidence_table(
     papers: list[dict],
     trials: list[dict],
     drugs: list[dict],
+    regulatory: list[dict] | None = None,
     max_per_source: int = 10,
 ) -> list[dict]:
     """
-    Build a unified evidence table from all three source groups.
+    Build a unified evidence table from all source groups.
 
     Returns a list of dicts with keys: Source, Title, Status, Date, Signal, ID.
     """
@@ -123,4 +155,6 @@ def build_evidence_table(
     table.extend(build_paper_rows(papers, max_per_source))
     table.extend(build_trial_rows(trials, max_per_source))
     table.extend(build_drug_rows(drugs, max_per_source))
+    if regulatory:
+        table.extend(build_regulatory_rows(regulatory, max_per_source))
     return table

@@ -29,6 +29,7 @@ CORES = {
     "biomedcore": ("biomedcore", "Literature", "📄"),
     "trialcore": ("trialcore", "Clinical Trials", "🔬"),
     "drugcore": ("drugcore", "Drugs & Interventions", "💊"),
+    "regulatorycore": ("regulatorycore", "Regulatory", "🏛️"),
 }
 
 

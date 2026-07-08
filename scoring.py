@@ -6,11 +6,14 @@ Transparent, deterministic rules per MVP spec §8.
 from typing import Any
 
 
-def compute_scores(papers: list[dict], trials: list[dict], drugs: list[dict]) -> dict[str, Any]:
+def compute_scores(papers: list[dict], trials: list[dict], drugs: list[dict], regulatory: list[dict] | None = None) -> dict[str, Any]:
     """Compute evidence signals and recommendation from record lists."""
+    if regulatory is None:
+        regulatory = []
     pc = len(papers)
     tc = len(trials)
     dc = len(drugs)
+    rc = len(regulatory)
 
     stopped = sum(
         1 for t in trials
@@ -21,7 +24,7 @@ def compute_scores(papers: list[dict], trials: list[dict], drugs: list[dict]) ->
         if d.get("maxClinicalStage", "") in ("PHASE3", "PREAPPROVAL", "APPROVAL")
     )
 
-    low_data = (pc + tc + dc) < 5
+    low_data = (pc + tc + dc + rc) < 5
 
     studied = (
         "High" if pc >= 25 else
@@ -75,5 +78,5 @@ def compute_scores(papers: list[dict], trials: list[dict], drugs: list[dict]) ->
         "recommendation": rec,
         "rationale": rationale,
         "low_data": low_data,
-        "counts": {"papers": pc, "trials": tc, "drugs": dc, "stopped": stopped, "late_stage": late_stage},
+        "counts": {"papers": pc, "trials": tc, "drugs": dc, "regulatory": rc, "stopped": stopped, "late_stage": late_stage},
     }

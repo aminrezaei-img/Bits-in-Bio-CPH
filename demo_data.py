@@ -70,6 +70,8 @@ PROCEED_DRUGS = [
     },
 ]
 
+PROCEED_REGULATORY = []  # No regulatory activity for this underexplored space
+
 # ── Review carefully: GLP-1 for Alzheimer's ────────────────
 # Moderate evidence — some testing, growing interest
 
@@ -184,6 +186,49 @@ REVIEW_DRUGS = [
         "name": "Exenatide",
         "drugType": "PROTEIN",
         "maxClinicalStage": "APPROVAL",
+    },
+]
+
+REVIEW_REGULATORY = [
+    {
+        "amassId": "AMRC_demo_r001",
+        "name": "Ozempic",
+        "agency": "FDA",
+        "activeSubstance": "Semaglutide",
+        "moleculeType": "PROTEIN",
+        "authorizationStatus": "ACTIVE",
+        "authorizationDate": "2017-12-05",
+        "therapeuticIndication": "Type 2 diabetes mellitus",
+    },
+    {
+        "amassId": "AMRC_demo_r002",
+        "name": "Wegovy",
+        "agency": "FDA",
+        "activeSubstance": "Semaglutide",
+        "moleculeType": "PROTEIN",
+        "authorizationStatus": "ACTIVE",
+        "authorizationDate": "2021-06-04",
+        "therapeuticIndication": "Chronic weight management",
+    },
+    {
+        "amassId": "AMRC_demo_r003",
+        "name": "Victoza",
+        "agency": "FDA",
+        "activeSubstance": "Liraglutide",
+        "moleculeType": "PROTEIN",
+        "authorizationStatus": "ACTIVE",
+        "authorizationDate": "2010-01-25",
+        "therapeuticIndication": "Type 2 diabetes mellitus",
+    },
+    {
+        "amassId": "AMRC_demo_r004",
+        "name": "Saxenda",
+        "agency": "EMA",
+        "activeSubstance": "Liraglutide",
+        "moleculeType": "PROTEIN",
+        "authorizationStatus": "ACTIVE",
+        "authorizationDate": "2015-03-23",
+        "therapeuticIndication": "Weight management",
     },
 ]
 
@@ -367,6 +412,69 @@ REFRAME_DRUGS = [
     },
 ]
 
+REFRAME_REGULATORY = [
+    {
+        "amassId": "AMRC_demo_f001",
+        "name": "Kymriah",
+        "agency": "FDA",
+        "activeSubstance": "Tisagenlecleucel",
+        "moleculeType": "CELL",
+        "authorizationStatus": "ACTIVE",
+        "authorizationDate": "2017-08-30",
+        "therapeuticIndication": "B-cell acute lymphoblastic leukemia",
+    },
+    {
+        "amassId": "AMRC_demo_f002",
+        "name": "Yescarta",
+        "agency": "FDA",
+        "activeSubstance": "Axicabtagene Ciloleucel",
+        "moleculeType": "CELL",
+        "authorizationStatus": "ACTIVE",
+        "authorizationDate": "2017-10-18",
+        "therapeuticIndication": "Large B-cell lymphoma",
+    },
+    {
+        "amassId": "AMRC_demo_f003",
+        "name": "Tecartus",
+        "agency": "FDA",
+        "activeSubstance": "Brexucabtagene Autoleucel",
+        "moleculeType": "CELL",
+        "authorizationStatus": "ACTIVE",
+        "authorizationDate": "2020-07-24",
+        "therapeuticIndication": "Mantle cell lymphoma",
+    },
+    {
+        "amassId": "AMRC_demo_f004",
+        "name": "Breyanzi",
+        "agency": "FDA",
+        "activeSubstance": "Lisocabtagene Maraleucel",
+        "moleculeType": "CELL",
+        "authorizationStatus": "ACTIVE",
+        "authorizationDate": "2021-02-05",
+        "therapeuticIndication": "Large B-cell lymphoma",
+    },
+    {
+        "amassId": "AMRC_demo_f005",
+        "name": "Carvykti",
+        "agency": "FDA",
+        "activeSubstance": "Ciltacabtagene Autoleucel",
+        "moleculeType": "CELL",
+        "authorizationStatus": "ACTIVE",
+        "authorizationDate": "2022-02-28",
+        "therapeuticIndication": "Multiple myeloma",
+    },
+    {
+        "amassId": "AMRC_demo_f006",
+        "name": "Kymriah",
+        "agency": "EMA",
+        "activeSubstance": "Tisagenlecleucel",
+        "moleculeType": "CELL",
+        "authorizationStatus": "ACTIVE",
+        "authorizationDate": "2018-08-27",
+        "therapeuticIndication": "B-cell acute lymphoblastic leukemia",
+    },
+]
+
 # ── Scenario registry ──────────────────────────────────────
 
 DEMO_SCENARIOS = {
@@ -377,6 +485,7 @@ DEMO_SCENARIOS = {
         "biomedcore": {"records": PROCEED_BIOMED, "total": len(PROCEED_BIOMED), "error": None},
         "trialcore": {"records": PROCEED_TRIALS, "total": len(PROCEED_TRIALS), "error": None},
         "drugcore": {"records": PROCEED_DRUGS, "total": len(PROCEED_DRUGS), "error": None},
+        "regulatorycore": {"records": PROCEED_REGULATORY, "total": len(PROCEED_REGULATORY), "error": None},
     },
     "review": {
         "label": "🟡 Review — GLP-1 receptor agonists for Alzheimer's",
@@ -385,6 +494,7 @@ DEMO_SCENARIOS = {
         "biomedcore": {"records": REVIEW_BIOMED, "total": len(REVIEW_BIOMED), "error": None},
         "trialcore": {"records": REVIEW_TRIALS, "total": len(REVIEW_TRIALS), "error": None},
         "drugcore": {"records": REVIEW_DRUGS, "total": len(REVIEW_DRUGS), "error": None},
+        "regulatorycore": {"records": REVIEW_REGULATORY, "total": len(REVIEW_REGULATORY), "error": None},
     },
     "reframe": {
         "label": "🔴 Reframe — CAR-T therapy for solid tumors",
@@ -393,6 +503,7 @@ DEMO_SCENARIOS = {
         "biomedcore": {"records": REFRAME_BIOMED, "total": len(REFRAME_BIOMED), "error": None},
         "trialcore": {"records": REFRAME_TRIALS, "total": len(REFRAME_TRIALS), "error": None},
         "drugcore": {"records": REFRAME_DRUGS, "total": len(REFRAME_DRUGS), "error": None},
+        "regulatorycore": {"records": REFRAME_REGULATORY, "total": len(REFRAME_REGULATORY), "error": None},
     },
 }
 

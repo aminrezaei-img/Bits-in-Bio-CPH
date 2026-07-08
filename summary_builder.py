@@ -42,9 +42,10 @@ def _proceed_bullets(scores: dict, c: dict) -> list[str]:
 
     # Bullet 1: evidence landscape
     if scores["low_data"]:
+        total = c['papers'] + c['trials'] + c['drugs'] + c.get('regulatory', 0)
         bullets.append(
-            f"Only {_plural(c['papers'] + c['trials'] + c['drugs'], 'record')} "
-            f"found across literature, trials, and drugs — "
+            f"Only {_plural(total, 'record')} "
+            f"found across literature, trials, drugs, and regulatory sources — "
             f"this space may be underexplored."
         )
     else:
@@ -82,9 +83,13 @@ def _review_bullets(scores: dict, c: dict) -> list[str]:
     bullets = []
 
     # Bullet 1: how much activity
+    parts = [f"{_plural(c['papers'], 'paper')}", f"{_plural(c['trials'], 'trial')}"]
+    if c["drugs"]:
+        parts.append(f"{_plural(c['drugs'], 'drug')}")
+    if c.get("regulatory", 0):
+        parts.append(f"{_plural(c['regulatory'], 'regulatory authorization')}")
     bullets.append(
-        f"Found {_plural(c['papers'], 'paper')}, {_plural(c['trials'], 'trial')}, "
-        f"and {_plural(c['drugs'], 'drug')} — "
+        f"Found {', '.join(parts)} — "
         f"meaningful prior activity exists."
     )
 
@@ -138,9 +143,12 @@ def _reframe_bullets(scores: dict, c: dict) -> list[str]:
             f"repeated practical failure signals warrant caution."
         )
     elif scores["translation_signal"] in ("Moderate", "High"):
+        reg_part = ""
+        if c.get("regulatory", 0):
+            reg_part = f" and {_plural(c['regulatory'], 'regulatory authorization')}"
         bullets.append(
             f"Translation signal is {scores['translation_signal'].lower()} — "
-            f"late-stage or approved interventions already occupy this space."
+            f"late-stage or approved interventions{reg_part} already occupy this space."
         )
     else:
         bullets.append(

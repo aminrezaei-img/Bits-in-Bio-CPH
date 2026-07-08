@@ -9,6 +9,7 @@ from table_builder import (
     build_paper_rows,
     build_trial_rows,
     build_drug_rows,
+    build_regulatory_rows,
     build_evidence_table,
 )
 
@@ -93,6 +94,39 @@ MOCK_DRUGS = [
         "name": None,
         "drugType": None,
         "maxClinicalStage": None,
+    },
+]
+
+MOCK_REGULATORY = [
+    {
+        "amassId": "AMRC_m001",
+        "name": "Kymriah",
+        "agency": "FDA",
+        "activeSubstance": "Tisagenlecleucel",
+        "moleculeType": "CELL",
+        "authorizationStatus": "ACTIVE",
+        "authorizationDate": "2017-08-30",
+        "therapeuticIndication": "B-cell acute lymphoblastic leukemia",
+    },
+    {
+        "amassId": "AMRC_m002",
+        "name": "Yescarta",
+        "agency": "EMA",
+        "activeSubstance": "Axicabtagene Ciloleucel",
+        "moleculeType": "CELL",
+        "authorizationStatus": "CONDITIONAL",
+        "authorizationDate": "2018-08-27",
+        "therapeuticIndication": None,
+    },
+    {
+        "amassId": "AMRC_m003",
+        "name": None,
+        "agency": None,
+        "activeSubstance": None,
+        "moleculeType": None,
+        "authorizationStatus": None,
+        "authorizationDate": None,
+        "therapeuticIndication": None,
     },
 ]
 
@@ -192,6 +226,39 @@ def test_empty_inputs():
     assert table == []
 
 
+def test_build_regulatory_rows():
+    rows = build_regulatory_rows(MOCK_REGULATORY)
+    assert len(rows) == 3
+
+    r0 = rows[0]
+    assert r0["Source"] == "🏛️ Regulatory"
+    assert "Kymriah" in r0["Title"]
+    assert "Tisagenlecleucel" in r0["Title"]
+    assert "FDA" in r0["Status"]
+    assert "ACTIVE" in r0["Status"]
+    assert r0["Date"] == "2017-08-30"
+    assert r0["Signal"] == "✅ Active authorization"
+    assert r0["ID"] == "AMRC_m001"
+
+    # Conditional authorization
+    r1 = rows[1]
+    assert "EMA" in r1["Status"]
+    assert "CONDITIONAL" in r1["Status"]
+    assert r1["Signal"] == "—"
+
+    # Null record
+    r2 = rows[2]
+    assert r2["Title"] == "N/A"
+    assert r2["Status"] == "—"
+
+
+def test_build_evidence_table_with_regulatory():
+    table = build_evidence_table(MOCK_PAPERS, MOCK_TRIALS, MOCK_DRUGS, MOCK_REGULATORY)
+    sources = [r["Source"] for r in table]
+    assert "🏛️ Regulatory" in sources
+    assert len(table) == 12  # 3+3+3+3
+
+
 # ── Run ────────────────────────────────────────────────────
 if __name__ == "__main__":
     tests = [
@@ -201,6 +268,8 @@ if __name__ == "__main__":
         test_build_evidence_table,
         test_max_rows_limit,
         test_empty_inputs,
+        test_build_regulatory_rows,
+        test_build_evidence_table_with_regulatory,
     ]
     passed = failed = 0
     for test in tests:
