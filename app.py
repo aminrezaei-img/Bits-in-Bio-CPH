@@ -15,35 +15,80 @@ from globe_map import extract_countries, build_globe_html, has_country_data
 
 st.set_page_config(page_title="Viably", page_icon="🧬", layout="wide")
 
-# ── Custom CSS ──────────────────────────────────────────────
+# ── Design system: ported from frontend prototype ────────────
 st.markdown("""
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-.viably-header {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-    padding: 12px 24px;
-    border-radius: 10px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.viably-header h1 {
-    color: white;
-    margin: 0;
-    font-size: 22px;
-    font-weight: 700;
-}
-.viably-header .tagline {
-    color: #94a3b8;
-    font-size: 12px;
-}
-.profile-section {
-    background: #f8fafc;
-    border-radius: 10px;
-    padding: 12px;
-    margin-top: 16px;
-    border: 1px solid #e2e8f0;
-}
+  /* ── Base ── */
+  .stApp { background: #F5F3EE; }
+  .stMainBlockContainer { background: #F5F3EE; padding-top: 2rem; }
+
+  /* ── Typography ── */
+  h1, h2, h3 { font-family: 'Newsreader', Georgia, serif !important; font-weight: 500 !important; letter-spacing: -0.01em !important; }
+  h1 { font-size: 38px !important; }
+  h2 { font-size: 22px !important; }
+  body, p, .stMarkdown, .stCaption { font-family: 'IBM Plex Sans', system-ui, sans-serif !important; color: #3A382F; }
+  .st-cb, .st-cd, .st-ce { font-family: 'IBM Plex Mono', monospace !important; font-size: 11px !important; letter-spacing: 0.12em !important; text-transform: uppercase !important; color: #8C877D !important; }
+
+  /* ── Viably header ── */
+  .viably-header {
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 0 0 20px 0; border-bottom: 1px solid #E4E1D9; margin-bottom: 24px;
+  }
+  .viably-header .mono-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    letter-spacing: 0.18em; text-transform: uppercase; color: #8C877D;
+  }
+
+  /* ── Cards ── */
+  .ev-card {
+    background: #FFFFFF; border: 1px solid #E4E1D9; border-radius: 10px;
+    padding: 18px; display: flex; flex-direction: column; gap: 10px;
+  }
+
+  /* ── Verdict card ── */
+  .verdict-card {
+    background: #FFFFFF; border: 1px solid #E4E1D9; border-radius: 12px;
+    overflow: hidden; display: flex; margin-bottom: 24px;
+  }
+  .verdict-bar { width: 6px; flex: none; }
+  .verdict-body { padding: 24px 28px; flex: 1; }
+
+  /* ── Evidence section ── */
+  .evidence-section-title {
+    font-family: 'Newsreader', Georgia, serif; font-weight: 500;
+    font-size: 22px; margin: 0 0 16px 0; letter-spacing: -0.01em;
+  }
+
+  /* ── Input card ── */
+  .input-card {
+    background: #FFFFFF; border: 1px solid #E4E1D9; border-radius: 10px;
+    padding: 20px; margin-bottom: 24px;
+  }
+
+  /* ── Sidebar ── */
+  section[data-testid="stSidebar"] {
+    background: #FBFAF7; border-right: 1px solid #E4E1D9;
+  }
+
+  /* ── Buttons ── */
+  .stButton > button {
+    font-family: 'IBM Plex Sans', sans-serif !important; font-weight: 600 !important;
+    font-size: 13.5px !important; background: #1C1B19 !important; color: #F5F3EE !important;
+    border: none !important; border-radius: 7px !important; padding: 11px 20px !important;
+  }
+  .stButton > button:hover { background: #000000 !important; }
+
+  /* ── Profile ── */
+  .profile-section {
+    background: #FFFFFF; border: 1px solid #E4E1D9; border-radius: 10px;
+    padding: 12px; margin-top: 16px;
+  }
+
+  /* ── Dataframe / table ── */
+  .stDataFrame { border: 1px solid #E4E1D9 !important; border-radius: 10px !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -71,17 +116,30 @@ def render_assessment(papers, trials, drugs, regulatory=None, patents=None, erro
 
     # ── Recommendation card ──
     rec_color = {
-        "Proceed": "#16a34a",
-        "Review carefully": "#d97706",
-        "Reframe": "#dc2626",
+        "Proceed": "#2F7A50",
+        "Review carefully": "#B8862F",
+        "Reframe": "#A8552B",
     }.get(scores["recommendation"], "#6b7280")
+
+    rec_summary = {
+        "Proceed": "Low crowding · weak prior signal",
+        "Review carefully": "Meaningful prior activity",
+        "Reframe": "Crowded · tested · repeated stop signals",
+    }.get(scores["recommendation"], "")
 
     st.markdown("---")
     st.markdown(
         f"""
-        <div style="background:{rec_color};padding:24px;border-radius:12px;color:white;margin-bottom:20px">
-            <h2 style="margin:0;color:white">{scores['recommendation']}</h2>
-            <p style="margin:8px 0 0 0;opacity:0.9">{scores['rationale']}</p>
+        <div class="verdict-card">
+            <div class="verdict-bar" style="background:{rec_color}"></div>
+            <div class="verdict-body">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#8C877D;margin-bottom:8px">Recommendation</div>
+                <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:10px">
+                    <div style="font-family:'Newsreader',Georgia,serif;font-weight:500;font-size:44px;line-height:1;letter-spacing:-0.015em;color:{rec_color}">{scores['recommendation']}</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8C877D">{rec_summary}</div>
+                </div>
+                <p style="margin:0;font-size:16px;line-height:1.5;color:#3A382F;max-width:64ch;font-family:'IBM Plex Sans',sans-serif">{scores['rationale']}</p>
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -228,11 +286,11 @@ with left_col:
     # ── Viably header ──
     st.markdown("""
     <div class="viably-header">
-        <span style="font-size:28px">🧬</span>
-        <div>
-            <h1>Viably</h1>
-            <div class="tagline">Decide whether a bio project idea is worth pursuing — before spending weeks on it.</div>
-        </div>
+        <div class="mono-label">Decision brief</div>
+        <h1 style="margin:0;color:#1C1B19">Viably</h1>
+        <p style="margin:0;font-size:15px;color:#6E6B64;max-width:52ch;font-family:'IBM Plex Sans',sans-serif">
+            Decide whether a bio project idea is worth pursuing — before spending weeks on it.
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -330,6 +388,19 @@ with left_col:
             active["query"],
             active["scores"]["counts"],
         )
+
+    # ── Footer ──
+    st.markdown("---")
+    st.markdown("""
+    <footer style="display:flex;flex-direction:column;gap:6px;padding-top:4px">
+        <p style="margin:0;font-size:13px;color:#6E6B64;max-width:70ch;font-family:'IBM Plex Sans',sans-serif">
+            Viably turns scattered evidence into a first-pass project decision. It does not replace expert review.
+        </p>
+        <p style="margin:0;font-size:11px;color:#A8A498;font-family:'IBM Plex Mono',monospace">
+            Recommendation grounded in retrieved records · LLM used only to phrase the brief
+        </p>
+    </footer>
+    """, unsafe_allow_html=True)
 
 # ── Right panel: Chat ───────────────────────────────────────
 with right_col:
