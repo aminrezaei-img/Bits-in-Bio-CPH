@@ -6,6 +6,8 @@ import streamlit as st
 from amass_client import search_all, CORES
 from table_builder import build_evidence_table
 from summary_builder import build_summary
+from scoring import compute_scores
+from demo_data import get_demo_scenario, get_demo_scenarios
 
 st.set_page_config(page_title="Bio Project Triage", page_icon="🧬", layout="wide")
 
@@ -16,115 +18,21 @@ def cached_search(query: str, limit: int = 20):
     return search_all(query, limit=limit)
 
 
-# ── Header ──────────────────────────────────────────────────
-st.title("🧬 Bio Project Triage")
-st.caption("Decide whether a bio idea is worth pursuing — before spending weeks on it.")
-st.markdown("---")
-
-
-# ── Input ───────────────────────────────────────────────────
-idea = st.text_area(
-    "What's your project idea?",
-    placeholder="Describe the target, intervention, disease area, or hypothesis...",
-    height=100,
-)
-
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    assess = st.button("🔍 Assess Project", type="primary", use_container_width=True)
-
-
-# ── Scoring logic ───────────────────────────────────────────
-def compute_scores(papers, trials, drugs):
-    """Transparent, deterministic scoring — no LLM required."""
-    pc = len(papers)
-    tc = len(trials)
-    dc = len(drugs)
-
-    # Count terminated/withdrawn trials
-    stopped = sum(
-        1 for t in trials
-        if t.get("overallStatus", "") in ("TERMINATED", "WITHDRAWN", "SUSPENDED")
-    )
-
-    # Count late-stage / approved drugs
-    late_stage = sum(
-        1 for d in drugs
-        if d.get("maxClinicalStage", "") in ("PHASE3", "PREAPPROVAL", "APPROVAL")
-    )
-
-    low_data = (pc + tc + dc) < 5
-
-    studied = (
-        "High" if pc >= 25 else
-        "Moderate" if pc >= 8 else
-        "Low"
-    )
-    tested = (
-        "High" if tc >= 10 else
-        "Moderate" if tc >= 3 else
-        "Low"
-    )
-    failure = (
-        "High" if stopped >= 3 else
-        "Moderate" if stopped >= 1 else
-        "Low"
-    )
-    translation = (
-        "High" if late_stage >= 3 else
-        "Moderate" if late_stage >= 1 else
-        "Low"
-    )
-    competitive = (
-        "High" if dc >= 10 else
-        "Moderate" if dc >= 3 else
-        "Low"
-    )
-
-    # Recommendation
-    if low_data:
-        rec = "Proceed"
-        rationale = "Limited indexed evidence found — this may be underexplored."
-    elif failure == "High":
-        rec = "Reframe"
-        rationale = "Prior testing shows repeated stop or withdrawal signals."
-    elif competitive == "High" and translation in ("Moderate", "High"):
-        rec = "Reframe"
-        rationale = "The space appears crowded and already translated."
-    elif tested in ("Moderate", "High") or competitive == "Moderate":
-        rec = "Review carefully"
-        rationale = "Meaningful prior activity exists — a clearer angle is needed."
-    else:
-        rec = "Proceed"
-        rationale = "No strong crowding or failure signal found."
-
-    return {
-        "studied_before": studied,
-        "tested_in_practice": tested,
-        "failure_signal": failure,
-        "translation_signal": translation,
-        "competitive_pressure": competitive,
-        "recommendation": rec,
-        "rationale": rationale,
-        "low_data": low_data,
-        "counts": {"papers": pc, "trials": tc, "drugs": dc, "stopped": stopped, "late_stage": late_stage},
-    }
-
-
+# ── Helpers ─────────────────────────────────────────────────
 def get_signal_emoji(level):
     return {"High": "🔴", "Moderate": "🟡", "Low": "🟢"}.get(level, "⚪")
 
 
-# ── Results ─────────────────────────────────────────────────
-if assess and idea.strip():
-    with st.spinner("Searching across literature, trials, and drugs..."):
-        results = cached_search(idea.strip(), limit=20)
+def _all_failed(results: dict) -> bool:
+    """True if every core returned an error or zero records."""
+    for r in results.values():
+        if r.get("records") and not r.get("error"):
+            return False
+    return True
 
-    # Build flat record list per core
-    papers = results.get("biomedcore", {}).get("records", [])
-    trials = results.get("trialcore", {}).get("records", [])
-    drugs = results.get("drugcore", {}).get("records", [])
 
+def render_results(papers, trials, drugs, errors=None):
+    """Render the full results section from record lists."""
     scores = compute_scores(papers, trials, drugs)
 
     # ── Recommendation card ──
@@ -184,7 +92,6 @@ if assess and idea.strip():
 
     # ── Evidence table ──
     st.subheader("📋 Supporting Evidence")
-
     table_rows = build_evidence_table(papers, trials, drugs, max_per_source=10)
 
     if table_rows:
@@ -193,16 +100,100 @@ if assess and idea.strip():
         st.info("No records found across the three sources.")
 
     # ── Errors ──
-    for core_name, result in results.items():
-        if result.get("error"):
-            st.warning(f"⚠️ {CORES[core_name][1]}: {result['error']}")
+    if errors:
+        for core_name, err_msg in errors.items():
+            st.warning(f"⚠️ {CORES[core_name][1]}: {err_msg}")
+
+
+# ── Sidebar: Quick Demo ─────────────────────────────────────
+with st.sidebar:
+    st.markdown("### ⚡ Quick Demo")
+    scenarios = get_demo_scenarios()
+    demo_key = st.selectbox(
+        "Load a pre-cached scenario:",
+        options=["—"] + list(scenarios.keys()),
+        format_func=lambda k: scenarios[k]["label"] if k != "—" else "Select a demo...",
+        label_visibility="collapsed",
+    )
+    if demo_key != "—":
+        sc = scenarios[demo_key]
+        st.caption(f"*{sc['idea']}*")
+        st.caption(f"Expected: **{sc['expected_rec']}**")
+        if st.button("🚀 Run This Demo", use_container_width=True):
+            st.session_state["run_demo"] = demo_key
+
+    st.markdown("---")
+    st.caption("Built with [Amass API](https://platform.amass.tech) · [Repo](https://github.com/aminrezaei-img/Bits-in-Bio-CPH)")
+
+
+# ── Header ──────────────────────────────────────────────────
+st.title("🧬 Bio Project Triage")
+st.caption("Decide whether a bio idea is worth pursuing — before spending weeks on it.")
+st.markdown("---")
+
+
+# ── Input ───────────────────────────────────────────────────
+idea = st.text_area(
+    "What's your project idea?",
+    placeholder="Describe the target, intervention, disease area, or hypothesis...",
+    height=100,
+    key="idea_input",
+)
+
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    assess = st.button("🔍 Assess Project", type="primary", use_container_width=True)
+
+
+# ── Results ─────────────────────────────────────────────────
+# Path 1: Demo button in sidebar
+if st.session_state.get("run_demo"):
+    demo_key = st.session_state.pop("run_demo")
+    sc = get_demo_scenario(demo_key)
+    if sc:
+        st.success(f"📦 Loaded demo: **{sc['label']}**")
+        errors = {}
+        for core_name in ["biomedcore", "trialcore", "drugcore"]:
+            if sc[core_name].get("error"):
+                errors[core_name] = sc[core_name]["error"]
+        render_results(
+            sc["biomedcore"]["records"],
+            sc["trialcore"]["records"],
+            sc["drugcore"]["records"],
+            errors=errors,
+        )
+        st.caption(f"💡 *Demo query idea:* {sc['idea']}")
+
+# Path 2: User-entered query
+elif assess and idea.strip():
+    with st.spinner("Searching across literature, trials, and drugs..."):
+        results = cached_search(idea.strip(), limit=20)
+
+    papers = results.get("biomedcore", {}).get("records", [])
+    trials = results.get("trialcore", {}).get("records", [])
+    drugs = results.get("drugcore", {}).get("records", [])
+
+    # Fallback: if all cores failed, try demo data
+    if _all_failed(results):
+        st.warning("⚠️ All API sources unavailable — showing cached demo data instead.")
+        # Use the reframe scenario as the safest fallback (most visually interesting)
+        sc = get_demo_scenario("reframe")
+        papers = sc["biomedcore"]["records"]
+        trials = sc["trialcore"]["records"]
+        drugs = sc["drugcore"]["records"]
+        errors = {k: v.get("error", "API unavailable") for k, v in results.items() if v.get("error")}
+    else:
+        errors = {k: v["error"] for k, v in results.items() if v.get("error")}
+
+    render_results(papers, trials, drugs, errors=errors)
 
 elif assess and not idea.strip():
     st.warning("Please enter a project idea.")
+
 else:
     # ── Empty state ──
     st.markdown("---")
-    st.info("👆 Enter a project idea above and click **Assess Project** to get started.")
+    st.info("👆 Enter a project idea above and click **Assess Project** to get started — or pick a demo from the sidebar.")
 
     with st.expander("💡 Example queries to try"):
         st.markdown("""
