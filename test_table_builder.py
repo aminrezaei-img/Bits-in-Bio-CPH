@@ -10,6 +10,7 @@ from table_builder import (
     build_trial_rows,
     build_drug_rows,
     build_regulatory_rows,
+    build_patent_rows,
     build_evidence_table,
 )
 
@@ -127,6 +128,29 @@ MOCK_REGULATORY = [
         "authorizationStatus": None,
         "authorizationDate": None,
         "therapeuticIndication": None,
+    },
+]
+
+MOCK_PATENTS = [
+    {
+        "amassId": "AMPC_m001",
+        "title": "Chimeric antigen receptors targeting solid tumor antigens",
+        "publicationNumber": "US-10533054-B2",
+        "countryCode": "US",
+        "assignees": ["Baylor College of Medicine", "Texas Children's Hospital"],
+        "publicationDate": "2020-01-14",
+        "filingDate": "2017-06-01",
+        "hasClaims": True,
+    },
+    {
+        "amassId": "AMPC_m002",
+        "title": None,
+        "publicationNumber": None,
+        "countryCode": None,
+        "assignees": [],
+        "publicationDate": None,
+        "filingDate": None,
+        "hasClaims": None,
     },
 ]
 
@@ -259,6 +283,36 @@ def test_build_evidence_table_with_regulatory():
     assert len(table) == 12  # 3+3+3+3
 
 
+def test_build_patent_rows():
+    rows = build_patent_rows(MOCK_PATENTS)
+    assert len(rows) == 2
+
+    r0 = rows[0]
+    assert r0["Source"] == "📜 Patent"
+    assert "CAR" in r0["Title"] or "Chimeric" in r0["Title"]
+    assert "US" in r0["Status"]
+    assert "US-10533054-B2" in r0["Status"]
+    assert r0["Date"] == "2020-01-14"
+    assert "Baylor" in r0["Signal"]
+    assert "+1 more" in r0["Signal"]
+    assert r0["ID"] == "AMPC_m001"
+
+    # Null record
+    r1 = rows[1]
+    assert r1["Title"] == "N/A"
+    assert r1["Status"] == "—"
+
+
+def test_build_evidence_table_with_patents():
+    table = build_evidence_table(
+        MOCK_PAPERS, MOCK_TRIALS, MOCK_DRUGS,
+        regulatory=MOCK_REGULATORY, patents=MOCK_PATENTS,
+    )
+    sources = [r["Source"] for r in table]
+    assert "📜 Patent" in sources
+    assert len(table) == 14  # 3+3+3+3+2
+
+
 # ── Run ────────────────────────────────────────────────────
 if __name__ == "__main__":
     tests = [
@@ -270,6 +324,8 @@ if __name__ == "__main__":
         test_empty_inputs,
         test_build_regulatory_rows,
         test_build_evidence_table_with_regulatory,
+        test_build_patent_rows,
+        test_build_evidence_table_with_patents,
     ]
     passed = failed = 0
     for test in tests:

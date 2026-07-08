@@ -30,6 +30,7 @@ CORES = {
     "trialcore": ("trialcore", "Clinical Trials", "🔬"),
     "drugcore": ("drugcore", "Drugs & Interventions", "💊"),
     "regulatorycore": ("regulatorycore", "Regulatory", "🏛️"),
+    "patentcore": ("patentcore", "Patents", "📜"),
 }
 
 

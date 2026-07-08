@@ -72,6 +72,19 @@ PROCEED_DRUGS = [
 
 PROCEED_REGULATORY = []  # No regulatory activity for this underexplored space
 
+PROCEED_PATENTS = [
+    {
+        "amassId": "AMPC_demo_p001",
+        "title": "Compositions and methods for targeted delivery of CRISPR-Cas systems to the gastrointestinal microbiome",
+        "publicationNumber": "WO-2025-034567-A1",
+        "countryCode": "WO",
+        "assignees": ["University of California"],
+        "publicationDate": "2025-02-15",
+        "filingDate": "2024-08-01",
+        "hasClaims": True,
+    },
+]
+
 # ── Review carefully: GLP-1 for Alzheimer's ────────────────
 # Moderate evidence — some testing, growing interest
 
@@ -229,6 +242,39 @@ REVIEW_REGULATORY = [
         "authorizationStatus": "ACTIVE",
         "authorizationDate": "2015-03-23",
         "therapeuticIndication": "Weight management",
+    },
+]
+
+REVIEW_PATENTS = [
+    {
+        "amassId": "AMPC_demo_r001",
+        "title": "GLP-1 receptor agonists for treatment of Alzheimer's disease and related neurodegenerative disorders",
+        "publicationNumber": "US-11738025-B2",
+        "countryCode": "US",
+        "assignees": ["Novo Nordisk A/S"],
+        "publicationDate": "2023-08-29",
+        "filingDate": "2021-03-15",
+        "hasClaims": True,
+    },
+    {
+        "amassId": "AMPC_demo_r002",
+        "title": "Methods of treating cognitive impairment using long-acting GLP-1/glucagon dual agonists",
+        "publicationNumber": "WO-2024-089123-A1",
+        "countryCode": "WO",
+        "assignees": ["Eli Lilly and Company"],
+        "publicationDate": "2024-05-10",
+        "filingDate": "2023-11-01",
+        "hasClaims": True,
+    },
+    {
+        "amassId": "AMPC_demo_r003",
+        "title": "Incretin-based therapies for neuroprotection and methods of use thereof",
+        "publicationNumber": "EP-4256789-A1",
+        "countryCode": "EP",
+        "assignees": ["Novo Nordisk A/S"],
+        "publicationDate": "2023-10-11",
+        "filingDate": "2022-04-01",
+        "hasClaims": True,
     },
 ]
 
@@ -475,6 +521,69 @@ REFRAME_REGULATORY = [
     },
 ]
 
+REFRAME_PATENTS = [
+    {
+        "amassId": "AMPC_demo_f001",
+        "title": "Chimeric antigen receptors targeting HER2 and methods of use thereof",
+        "publicationNumber": "US-10533054-B2",
+        "countryCode": "US",
+        "assignees": ["Baylor College of Medicine"],
+        "publicationDate": "2020-01-14",
+        "filingDate": "2017-06-01",
+        "hasClaims": True,
+    },
+    {
+        "amassId": "AMPC_demo_f002",
+        "title": "Mesothelin-specific chimeric antigen receptor T cells for treatment of solid tumors",
+        "publicationNumber": "WO-2022-156789-A1",
+        "countryCode": "WO",
+        "assignees": ["University of Pennsylvania"],
+        "publicationDate": "2022-07-28",
+        "filingDate": "2022-01-15",
+        "hasClaims": True,
+    },
+    {
+        "amassId": "AMPC_demo_f003",
+        "title": "GD2-targeted CAR-T cells for neuroblastoma and other GD2-positive solid tumors",
+        "publicationNumber": "US-11254746-B2",
+        "countryCode": "US",
+        "assignees": ["National Cancer Institute"],
+        "publicationDate": "2022-02-22",
+        "filingDate": "2019-09-01",
+        "hasClaims": True,
+    },
+    {
+        "amassId": "AMPC_demo_f004",
+        "title": "Armored CAR-T cells secreting IL-12 for treatment of ovarian cancer",
+        "publicationNumber": "US-2024-0012345-A1",
+        "countryCode": "US",
+        "assignees": ["Memorial Sloan Kettering Cancer Center"],
+        "publicationDate": "2024-01-11",
+        "filingDate": "2023-07-01",
+        "hasClaims": True,
+    },
+    {
+        "amassId": "AMPC_demo_f005",
+        "title": "CAR-T cell therapy targeting solid tumors with engineered tumor microenvironment modulation",
+        "publicationNumber": "EP-4012345-B1",
+        "countryCode": "EP",
+        "assignees": ["Novartis AG"],
+        "publicationDate": "2024-03-15",
+        "filingDate": "2021-12-01",
+        "hasClaims": True,
+    },
+    {
+        "amassId": "AMPC_demo_f006",
+        "title": "Claudin 18.2-specific CAR-T cells for treatment of gastric and pancreatic cancer",
+        "publicationNumber": "CN-115678901-B",
+        "countryCode": "CN",
+        "assignees": ["CARsgen Therapeutics"],
+        "publicationDate": "2024-06-20",
+        "filingDate": "2023-02-01",
+        "hasClaims": True,
+    },
+]
+
 # ── Scenario registry ──────────────────────────────────────
 
 DEMO_SCENARIOS = {
@@ -486,6 +595,7 @@ DEMO_SCENARIOS = {
         "trialcore": {"records": PROCEED_TRIALS, "total": len(PROCEED_TRIALS), "error": None},
         "drugcore": {"records": PROCEED_DRUGS, "total": len(PROCEED_DRUGS), "error": None},
         "regulatorycore": {"records": PROCEED_REGULATORY, "total": len(PROCEED_REGULATORY), "error": None},
+        "patentcore": {"records": PROCEED_PATENTS, "total": len(PROCEED_PATENTS), "error": None},
     },
     "review": {
         "label": "🟡 Review — GLP-1 receptor agonists for Alzheimer's",
@@ -495,6 +605,7 @@ DEMO_SCENARIOS = {
         "trialcore": {"records": REVIEW_TRIALS, "total": len(REVIEW_TRIALS), "error": None},
         "drugcore": {"records": REVIEW_DRUGS, "total": len(REVIEW_DRUGS), "error": None},
         "regulatorycore": {"records": REVIEW_REGULATORY, "total": len(REVIEW_REGULATORY), "error": None},
+        "patentcore": {"records": REVIEW_PATENTS, "total": len(REVIEW_PATENTS), "error": None},
     },
     "reframe": {
         "label": "🔴 Reframe — CAR-T therapy for solid tumors",
@@ -504,6 +615,7 @@ DEMO_SCENARIOS = {
         "trialcore": {"records": REFRAME_TRIALS, "total": len(REFRAME_TRIALS), "error": None},
         "drugcore": {"records": REFRAME_DRUGS, "total": len(REFRAME_DRUGS), "error": None},
         "regulatorycore": {"records": REFRAME_REGULATORY, "total": len(REFRAME_REGULATORY), "error": None},
+        "patentcore": {"records": REFRAME_PATENTS, "total": len(REFRAME_PATENTS), "error": None},
     },
 }
 

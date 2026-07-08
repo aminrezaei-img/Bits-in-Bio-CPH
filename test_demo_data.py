@@ -17,7 +17,7 @@ def test_all_scenarios_present():
 
 
 def test_each_scenario_has_all_keys():
-    required = {"label", "idea", "expected_rec", "biomedcore", "trialcore", "drugcore", "regulatorycore"}
+    required = {"label", "idea", "expected_rec", "biomedcore", "trialcore", "drugcore", "regulatorycore", "patentcore"}
     for key, sc in DEMO_SCENARIOS.items():
         missing = required - set(sc.keys())
         assert not missing, f"{key}: missing keys {missing}"
@@ -99,6 +99,7 @@ def test_demo_data_builds_valid_table():
             sc["trialcore"]["records"],
             sc["drugcore"]["records"],
             sc["regulatorycore"]["records"],
+            sc["patentcore"]["records"],
         )
         assert len(table) > 0, f"{key}: empty table"
         for row in table:
@@ -112,9 +113,10 @@ def test_demo_data_builds_valid_summary():
         trials = sc["trialcore"]["records"]
         drugs = sc["drugcore"]["records"]
         regulatory = sc["regulatorycore"]["records"]
+        patents = sc["patentcore"]["records"]
 
         from scoring import compute_scores
-        scores = compute_scores(papers, trials, drugs, regulatory)
+        scores = compute_scores(papers, trials, drugs, regulatory, patents)
 
         assert scores["recommendation"] == sc["expected_rec"], (
             f"{key}: expected {sc['expected_rec']}, got {scores['recommendation']}"

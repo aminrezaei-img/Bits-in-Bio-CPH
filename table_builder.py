@@ -139,11 +139,41 @@ def build_regulatory_rows(regulatory: list[dict], max_rows: int = 10) -> list[di
     return rows
 
 
+def build_patent_rows(patents: list[dict], max_rows: int = 10) -> list[dict]:
+    """Convert PatentCore records into evidence table rows."""
+    rows = []
+    for rec in patents[:max_rows]:
+        amass_id = _safe_get(rec, "amassId")
+        pub_num = _safe_get(rec, "publicationNumber")
+        country = _safe_get(rec, "countryCode")
+        status = pub_num if pub_num else "—"
+        if country:
+            status = f"{country} · {status}"
+
+        assignees = rec.get("assignees", [])
+        signal = f"Assignee: {assignees[0]}" if assignees else "—"
+        if len(assignees) > 1:
+            signal += f" +{len(assignees)-1} more"
+
+        title = _truncate(rec.get("title", "N/A"))
+
+        rows.append({
+            "Source": "📜 Patent",
+            "Title": title,
+            "Status": status,
+            "Date": _safe_get(rec, "publicationDate") or _safe_get(rec, "filingDate"),
+            "Signal": signal,
+            "ID": amass_id if amass_id else "—",
+        })
+    return rows
+
+
 def build_evidence_table(
     papers: list[dict],
     trials: list[dict],
     drugs: list[dict],
     regulatory: list[dict] | None = None,
+    patents: list[dict] | None = None,
     max_per_source: int = 10,
 ) -> list[dict]:
     """
@@ -157,4 +187,6 @@ def build_evidence_table(
     table.extend(build_drug_rows(drugs, max_per_source))
     if regulatory:
         table.extend(build_regulatory_rows(regulatory, max_per_source))
+    if patents:
+        table.extend(build_patent_rows(patents, max_per_source))
     return table
