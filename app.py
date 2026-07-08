@@ -168,7 +168,8 @@ with st.sidebar:
     # Logo / header
     st.markdown(
         "<div style='text-align:center;padding:8px 0 12px 0'>"
-        "<span style='font-size:24px;font-weight:800;color:#1e293b'>🧬 Viably</span>"
+        "<div style='font-size:100px;line-height:1.1'>🧬</div>"
+        "<span style='font-size:24px;font-weight:800;color:#1e293b'>Viably</span>"
         "<div style='font-size:11px;color:#94a3b8;margin-top:2px'>Evidence-based project triage</div>"
         "</div>",
         unsafe_allow_html=True,
@@ -217,8 +218,8 @@ with st.sidebar:
         st.checkbox("Auto-save sessions", value=True, key="setting_autosave")
         st.selectbox("Chat style", ["Concise", "Detailed", "Bullet points"], key="setting_chat_style")
 
-    st.caption("Built with [Amass API](https://platform.amass.tech)")
-    st.caption("[Viably on GitHub](https://github.com/aminrezaei-img/Bits-in-Bio-CPH)")
+    st.caption("Built with ❤️ [Amass API](https://platform.amass.tech)")
+    st.caption("🐙 [Viably on GitHub](https://github.com/aminrezaei-img/Bits-in-Bio-CPH)")
 
 
 # ── Main layout ─────────────────────────────────────────────
