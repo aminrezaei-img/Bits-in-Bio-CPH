@@ -170,7 +170,7 @@ with st.sidebar:
         "<div style='text-align:center;padding:8px 0 12px 0'>"
         "<div style='font-size:100px;line-height:1.1'>🧬</div>"
         "<span style='font-size:24px;font-weight:800;color:#1e293b'>Viably</span>"
-        "<div style='font-size:14px;color:#64748b;margin-top:2px'>Evidence-based project triage</div>"
+        "<div style='font-size:28px;color:#64748b;margin-top:2px'>Evidence-based project triage</div>"
         "</div>",
         unsafe_allow_html=True,
     )
