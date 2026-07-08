@@ -3,6 +3,7 @@ Evidence table builder for Bio Project Triage.
 Pure functions — no API calls, fully testable with mock data.
 """
 from typing import Any
+from signal_mapper import get_record_signals, format_signal_badges
 
 
 def _truncate(text: str, max_len: int = 120) -> str:
@@ -51,6 +52,7 @@ def build_paper_rows(papers: list[dict], max_rows: int = 10) -> list[dict]:
             "Date": _safe_get(rec, "publicationDate"),
             "Signal": ", ".join(signal_parts) if signal_parts else "—",
             "ID": amass_id if amass_id else "—",
+            "Signals": format_signal_badges(get_record_signals(rec, "paper")),
         })
     return rows
 
@@ -79,6 +81,7 @@ def build_trial_rows(trials: list[dict], max_rows: int = 10) -> list[dict]:
             "Date": _safe_get(rec, "startDate"),
             "Signal": signal,
             "ID": amass_id if amass_id else "—",
+            "Signals": format_signal_badges(get_record_signals(rec, "trial")),
         })
     return rows
 
@@ -101,9 +104,10 @@ def build_drug_rows(drugs: list[dict], max_rows: int = 10) -> list[dict]:
             "Source": "💊 Drug",
             "Title": _truncate(rec.get("name", "N/A")),
             "Status": status,
-            "Date": "",  # DrugCore has no single date field
+            "Date": "",
             "Signal": signal,
             "ID": amass_id if amass_id else "—",
+            "Signals": format_signal_badges(get_record_signals(rec, "drug")),
         })
     return rows
 
@@ -135,6 +139,7 @@ def build_regulatory_rows(regulatory: list[dict], max_rows: int = 10) -> list[di
             "Date": _safe_get(rec, "authorizationDate"),
             "Signal": signal,
             "ID": amass_id if amass_id else "—",
+            "Signals": format_signal_badges(get_record_signals(rec, "regulatory")),
         })
     return rows
 
@@ -164,6 +169,7 @@ def build_patent_rows(patents: list[dict], max_rows: int = 10) -> list[dict]:
             "Date": _safe_get(rec, "publicationDate") or _safe_get(rec, "filingDate"),
             "Signal": signal,
             "ID": amass_id if amass_id else "—",
+            "Signals": format_signal_badges(get_record_signals(rec, "patent")),
         })
     return rows
 

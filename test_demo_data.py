@@ -103,7 +103,7 @@ def test_demo_data_builds_valid_table():
         )
         assert len(table) > 0, f"{key}: empty table"
         for row in table:
-            assert set(row.keys()) == {"Source", "Title", "Status", "Date", "Signal", "ID"}
+            assert set(row.keys()) == {"Source", "Title", "Status", "Date", "Signal", "ID", "Signals"}
 
 
 def test_demo_data_builds_valid_summary():

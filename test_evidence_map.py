@@ -24,6 +24,7 @@ def test_build_evidence_map_html_renders():
     assert "CAR-T for Solid Tumors" in html
     assert "HER2-CAR-T" in html
     assert "Tisagenlecleucel" in html
+    assert "click" in html.lower() or "expand" in html.lower()  # Interactive
 
 
 def test_build_evidence_map_with_all_sources():

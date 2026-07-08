@@ -232,7 +232,7 @@ def test_build_evidence_table():
     assert table[6]["Source"] == "💊 Drug"
 
     # All rows must have the 6 expected keys
-    expected_keys = {"Source", "Title", "Status", "Date", "Signal", "ID"}
+    expected_keys = {"Source", "Title", "Status", "Date", "Signal", "ID", "Signals"}
     for row in table:
         assert set(row.keys()) == expected_keys, f"Missing keys: {expected_keys - set(row.keys())}"
 
