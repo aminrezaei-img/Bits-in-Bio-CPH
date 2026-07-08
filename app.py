@@ -44,6 +44,8 @@ st.markdown("""
     margin-top: 16px;
     border: 1px solid #e2e8f0;
 }
+/* Input label font size */
+label[data-testid="stWidgetLabel"] p { font-size: 20px !important; font-weight: 600 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -245,7 +247,7 @@ with left_col:
         key="idea_input",
     )
 
-    col1, col2, col3 = st.columns([1, 2, 1])
+    col1, col2, col3 = st.columns([3, 1, 3])
     with col2:
         assess = st.button("🔍 Assess Project", type="primary", use_container_width=True)
 
