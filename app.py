@@ -318,7 +318,7 @@ with left_col:
         c1, c2, c3 = st.columns(3)
         with c1:
             st.markdown(
-                "<div style='background:#f8fafc;border-radius:10px;padding:20px;text-align:center;height:100%'>"
+                "<div style='background:#f8fafc;border-radius:10px;padding:20px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center'>"
                 "<div style='font-size:32px;margin-bottom:8px'>🔍</div>"
                 "<div style='font-weight:600;color:#1e293b;margin-bottom:4px'>1. Describe</div>"
                 "<div style='font-size:13px;color:#64748b'>Enter your project idea — target, intervention, disease, or hypothesis</div>"
@@ -327,7 +327,7 @@ with left_col:
             )
         with c2:
             st.markdown(
-                "<div style='background:#f8fafc;border-radius:10px;padding:20px;text-align:center;height:100%'>"
+                "<div style='background:#f8fafc;border-radius:10px;padding:20px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center'>"
                 "<div style='font-size:32px;margin-bottom:8px'>⚡</div>"
                 "<div style='font-weight:600;color:#1e293b;margin-bottom:4px'>2. Assess</div>"
                 "<div style='font-size:13px;color:#64748b'>We check 5 evidence sources — papers, trials, drugs, regulatory, patents</div>"
@@ -336,7 +336,7 @@ with left_col:
             )
         with c3:
             st.markdown(
-                "<div style='background:#f8fafc;border-radius:10px;padding:20px;text-align:center;height:100%'>"
+                "<div style='background:#f8fafc;border-radius:10px;padding:20px;text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center'>"
                 "<div style='font-size:32px;margin-bottom:8px'>💡</div>"
                 "<div style='font-weight:600;color:#1e293b;margin-bottom:4px'>3. Decide</div>"
                 "<div style='font-size:13px;color:#64748b'>Get a clear verdict: Proceed, Review carefully, or Reframe</div>"
