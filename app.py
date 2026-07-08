@@ -4,6 +4,7 @@ Query literature, trials, and drug records. Get a first-pass recommendation.
 """
 import streamlit as st
 from amass_client import search_all, CORES
+from table_builder import build_evidence_table
 
 st.set_page_config(page_title="Bio Project Triage", page_icon="🧬", layout="wide")
 
@@ -177,31 +178,7 @@ if assess and idea.strip():
     # ── Evidence table ──
     st.subheader("📋 Supporting Evidence")
 
-    table_rows = []
-    for rec in papers[:10]:
-        table_rows.append({
-            "Source": "📄 Paper",
-            "Title": rec.get("title", "N/A")[:120],
-            "Date": rec.get("publicationDate", ""),
-            "Journal": rec.get("journal", ""),
-            "Signal": f"Cited {rec.get('citationCount', 0) or 0}x" if rec.get("citationCount") else "",
-        })
-    for rec in trials[:10]:
-        table_rows.append({
-            "Source": "🔬 Trial",
-            "Title": (rec.get("briefTitle") or rec.get("officialTitle") or "N/A")[:120],
-            "Date": rec.get("startDate", ""),
-            "Journal": f"Phase: {rec.get('phase', 'N/A')} | Status: {rec.get('overallStatus', 'N/A')}",
-            "Signal": "⚠️ STOPPED" if rec.get("overallStatus") in ("TERMINATED", "WITHDRAWN", "SUSPENDED") else "",
-        })
-    for rec in drugs[:10]:
-        table_rows.append({
-            "Source": "💊 Drug",
-            "Title": rec.get("name", "N/A")[:120],
-            "Date": "",
-            "Journal": f"Type: {rec.get('drugType', 'N/A')} | Stage: {rec.get('maxClinicalStage', 'N/A')}",
-            "Signal": "✅ Approved" if rec.get("maxClinicalStage") == "APPROVAL" else "",
-        })
+    table_rows = build_evidence_table(papers, trials, drugs, max_per_source=10)
 
     if table_rows:
         st.dataframe(table_rows, use_container_width=True, hide_index=True)
