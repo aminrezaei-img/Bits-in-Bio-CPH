@@ -1,6 +1,6 @@
 """
-Bio Project Triage — Unlocking data silos through a unified decision brief.
-Query literature, trials, and drug records. Get a first-pass recommendation.
+Viably — Unlocking data silos. Decide whether a bio project idea is worth pursuing.
+Query studies, trials, interventions, and regulatory records. Get a first-pass recommendation.
 """
 import streamlit as st
 from amass_client import search_all, CORES
@@ -9,7 +9,7 @@ from summary_builder import build_summary
 from scoring import compute_scores
 from demo_data import get_demo_scenario, get_demo_scenarios
 
-st.set_page_config(page_title="Bio Project Triage", page_icon="🧬", layout="wide")
+st.set_page_config(page_title="Viably", page_icon="🧬", layout="wide")
 
 # ── Cached search ───────────────────────────────────────────
 @st.cache_data(ttl=3600)
@@ -124,12 +124,12 @@ with st.sidebar:
             st.session_state["run_demo"] = demo_key
 
     st.markdown("---")
-    st.caption("Built with [Amass API](https://platform.amass.tech) · [Repo](https://github.com/aminrezaei-img/Bits-in-Bio-CPH)")
+    st.caption("Built with [Amass API](https://platform.amass.tech) · [Viably on GitHub](https://github.com/aminrezaei-img/Bits-in-Bio-CPH)")
 
 
 # ── Header ──────────────────────────────────────────────────
-st.title("🧬 Bio Project Triage")
-st.caption("Decide whether a bio idea is worth pursuing — before spending weeks on it.")
+st.title("🧬 Viably")
+st.caption("Decide whether a bio project idea is worth pursuing — before spending weeks on it.")
 st.markdown("---")
 
 

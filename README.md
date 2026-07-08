@@ -33,10 +33,10 @@ Free API credits to their bio data architecture; drinks and food.
 ## Bits in Bio
 Bits in Bio is a global community building software for science. We welcome software people interested in solving problems in biology, bio people wanting to use software in the lab, and everybody in between. We look forward to seeing you!
 
-## Our Project: Bio Project Triage
+## Our Project: Viably
 
 **Unlocking data silos through a unified decision brief.**
 
-Bio Project Triage queries literature, clinical trials, and drug records — silos that researchers normally check one by one — and produces a single first-pass decision: **Proceed**, **Review Carefully**, or **Reframe**.
+Viably helps researchers and founders decide whether a bio project idea is worth pursuing, reviewing carefully, or reframing by checking structured evidence across studies, trials, interventions, and related records.
 
 Built with the [Amass API](https://platform.amass.tech), which unifies biomedical data across six cores into one interface.
