@@ -30,11 +30,26 @@ def set_context(scores: dict, idea: str, counts: dict):
 
 
 def render_chat_panel():
-    """Render the right-side chat panel."""
+    """Render the right-side chat panel with collapse toggle."""
     init_chat()
+    if "viably_chat_collapsed" not in st.session_state:
+        st.session_state.viably_chat_collapsed = False
+
+    # Collapse toggle button
+    if st.session_state.viably_chat_collapsed:
+        if st.button("💬 Open Chat", use_container_width=True):
+            st.session_state.viably_chat_collapsed = False
+            st.rerun()
+        return
 
     with st.container(border=True):
-        st.markdown("### 💬 Discuss Results")
+        col1, col2 = st.columns([5, 1])
+        with col1:
+            st.markdown("### 💬 Discuss Results")
+        with col2:
+            if st.button("✕", help="Hide chat panel", key="collapse_chat"):
+                st.session_state.viably_chat_collapsed = True
+                st.rerun()
 
         # Context status
         ctx = st.session_state.viably_context
@@ -55,11 +70,7 @@ def render_chat_panel():
 
         # Input
         if prompt := st.chat_input("Ask about the results...", key="viably_chat_input"):
-            # Add user message
             st.session_state.viably_chat.append({"role": "user", "content": prompt})
-
-            # Generate response
             response = generate_response(prompt, st.session_state.viably_context)
             st.session_state.viably_chat.append({"role": "assistant", "content": response})
-
             st.rerun()
