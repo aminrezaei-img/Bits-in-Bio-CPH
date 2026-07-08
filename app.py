@@ -8,6 +8,7 @@ from table_builder import build_evidence_table
 from summary_builder import build_summary
 from scoring import compute_scores
 from demo_data import get_demo_scenario, get_demo_scenarios
+from evidence_map import build_evidence_map_html, has_evidence
 
 st.set_page_config(page_title="Viably", page_icon="🧬", layout="wide")
 
@@ -31,7 +32,7 @@ def _all_failed(results: dict) -> bool:
     return True
 
 
-def render_results(papers, trials, drugs, regulatory=None, patents=None, errors=None):
+def render_results(papers, trials, drugs, regulatory=None, patents=None, errors=None, idea=""):
     """Render the full results section from record lists."""
     scores = compute_scores(papers, trials, drugs, regulatory, patents)
 
@@ -106,6 +107,14 @@ def render_results(papers, trials, drugs, regulatory=None, patents=None, errors=
         for core_name, err_msg in errors.items():
             st.warning(f"⚠️ {CORES[core_name][1]}: {err_msg}")
 
+    # ── Evidence map ──
+    if has_evidence(papers, trials, drugs, regulatory, patents):
+        with st.expander("🗺️ Evidence Map", expanded=False):
+            map_html = build_evidence_map_html(
+                idea, papers, trials, drugs, regulatory, patents, max_per_source=5,
+            )
+            st.components.v1.html(map_html, height=400, scrolling=True)
+
 
 # ── Sidebar: Quick Demo ─────────────────────────────────────
 with st.sidebar:
@@ -165,6 +174,7 @@ if st.session_state.get("run_demo"):
             regulatory=sc["regulatorycore"]["records"],
             patents=sc["patentcore"]["records"],
             errors=errors,
+            idea=sc["idea"],
         )
         st.caption(f"💡 *Demo query idea:* {sc['idea']}")
 
@@ -193,7 +203,7 @@ elif assess and idea.strip():
     else:
         errors = {k: v["error"] for k, v in results.items() if v.get("error")}
 
-    render_results(papers, trials, drugs, regulatory=regulatory, patents=patents, errors=errors)
+    render_results(papers, trials, drugs, regulatory=regulatory, patents=patents, errors=errors, idea=idea.strip())
 
 elif assess and not idea.strip():
     st.warning("Please enter a project idea.")
