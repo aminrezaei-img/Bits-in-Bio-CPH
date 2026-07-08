@@ -5,6 +5,7 @@ Query literature, trials, and drug records. Get a first-pass recommendation.
 import streamlit as st
 from amass_client import search_all, CORES
 from table_builder import build_evidence_table
+from summary_builder import build_summary
 
 st.set_page_config(page_title="Bio Project Triage", page_icon="🧬", layout="wide")
 
@@ -174,6 +175,12 @@ if assess and idea.strip():
         f"Stopped trials: {scores['counts']['stopped']} · "
         f"Late-stage: {scores['counts']['late_stage']}"
     )
+
+    # ── Why this matters ──
+    st.subheader("💡 Why This Matters")
+    bullets = build_summary(scores)
+    for bullet in bullets:
+        st.markdown(f"- {bullet}")
 
     # ── Evidence table ──
     st.subheader("📋 Supporting Evidence")
